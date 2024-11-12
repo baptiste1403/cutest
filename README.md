@@ -24,7 +24,6 @@ The recommanded way to define tests is by organising them in theme files
 
 ```c
 // file additions_test.h
-#define CUTEST_IMPLEMENTATION
 #include "cutest.h"
 
 TEST(one_plus_one_should_be_two) {
@@ -32,7 +31,6 @@ TEST(one_plus_one_should_be_two) {
 }
 
 // file multiplication_test.h
-#define CUTEST_IMPLEMENTATION
 #include "cutest.h"
 
 TEST(two_times_two_should_be_four) {

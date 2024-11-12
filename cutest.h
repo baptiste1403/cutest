@@ -49,7 +49,7 @@ bool global_failed = false;
 file_t files[MAX_FILES] = {0};
 size_t num_files = 0;
 
-arena_t utest_arena = {0};
+arena_t cutest_arena = {0};
 
 void register_test(file_t* file, void (*func)(), const char* name);
 void register_before_test(file_t* file, void (*func)());
@@ -89,14 +89,14 @@ file_t* get_file_by_name(const char* name);
 
 void add_assert_result(const char* test_expression, size_t line) {
     if(assert_result_list == NULL) {
-        current_assert_result = (assert_result_t*)arena_calloc(&utest_arena, 1, sizeof(assert_result_t) + BUFFER_SIZE);
+        current_assert_result = (assert_result_t*)arena_calloc(&cutest_arena, 1, sizeof(assert_result_t) + BUFFER_SIZE);
         current_assert_result->next = NULL;
         current_assert_result->line = line;
         strncpy(current_assert_result->buffer, test_expression, BUFFER_SIZE);
         assert_result_list = current_assert_result;
         return;
     }
-    current_assert_result->next = (assert_result_t*)arena_calloc(&utest_arena, 1, sizeof(assert_result_t) + BUFFER_SIZE);
+    current_assert_result->next = (assert_result_t*)arena_calloc(&cutest_arena, 1, sizeof(assert_result_t) + BUFFER_SIZE);
     current_assert_result = current_assert_result->next;
     current_assert_result->next = NULL;
     strncpy(current_assert_result->buffer, test_expression, BUFFER_SIZE);
@@ -105,7 +105,7 @@ void add_assert_result(const char* test_expression, size_t line) {
 void register_test(file_t* file, void (*func)(), const char* name) {
     if (file->num_tests < MAX_TESTS_IN_FILE && func != NULL) {
         file->registry[file->num_tests].func = func;
-        file->registry[file->num_tests].func_name = arena_strdup(&utest_arena, name);
+        file->registry[file->num_tests].func_name = arena_strdup(&cutest_arena, name);
         file->num_tests++;
     }
 }
@@ -120,8 +120,12 @@ void register_after_test(file_t* file, void (*func)()) {
 
 char* basename(const char* file) {
     char* start = strrchr(file, '/');
-    if(start == NULL) return NULL;
-    char* test_name = arena_strdup(&utest_arena, start+1);
+    char* test_name;
+    if(start == NULL) {
+        test_name = arena_strdup(&cutest_arena, file);
+    } else {
+        test_name = arena_strdup(&cutest_arena, start+1);
+    }
     *strrchr(test_name, '.') = '\0';
     return test_name;
 }
@@ -153,7 +157,7 @@ void run_all_tests() {
     } else {
         printf("\033[0;32mAll tests passed\033[0m\n");
     }
-    arena_free(&utest_arena);
+    arena_free(&cutest_arena);
 }
 
 void assert_(int test, const char* test_expression, size_t line) {
@@ -173,7 +177,7 @@ file_t* get_file_by_name(const char* name) {
     }
     // create file
     if(num_files < MAX_FILES) {
-        files[num_files].name = arena_strdup(&utest_arena, name);
+        files[num_files].name = arena_strdup(&cutest_arena, name);
         num_files++;
         return &files[num_files-1];
     }
