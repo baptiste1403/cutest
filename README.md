@@ -12,7 +12,7 @@ cc tests.c -o tests.out -Ipath/to/file
 
 ## Usage
 
-Tests are function declared using a macro that register them for testing :
+Tests are functions declared using a macro that register them for testing :
 
 ```c
 TEST(should_be_true) {
