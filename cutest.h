@@ -1,26 +1,3 @@
-/**
- * MIT License
- * Copyright (c) 2024 Baptiste ASSELIN
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
-
 #ifndef CUTEST_H
 #define CUTEST_H
 
@@ -141,7 +118,7 @@ void register_after_test(file_t* file, void (*func)()) {
     file->after_func = func;
 }
 
-char* basename(const char* file) {
+char* filename(const char* file) {
     char* start = strrchr(file, '/');
     char* test_name;
     if(start == NULL) {
@@ -149,6 +126,11 @@ char* basename(const char* file) {
     } else {
         test_name = arena_strdup(&cutest_arena, start+1);
     }
+    return test_name;
+}
+
+char* basename(const char* file) {
+    char* test_name = filename(file);
     *strrchr(test_name, '.') = '\0';
     return test_name;
 }
@@ -166,7 +148,7 @@ void run_all_tests() {
                 global_failed = true;
                 printf("    \033[0;31m%s : KO\033[0m\n", files[j].registry[i].func_name);
                 for (assert_result_t* current = assert_result_list; current != NULL; current = current->next) {
-                    printf("    \033[0;31m    %s at %s:%lu\033[0m\n", current->buffer, strrchr(files[j].name, '/')+1, current->line);
+                    printf("    \033[0;31m    %s at %s:%lu\033[0m\n", current->buffer, filename(files[j].name), current->line);
                 }
             }
             current_assert_result = NULL;
